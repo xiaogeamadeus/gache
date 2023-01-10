@@ -34,9 +34,9 @@ func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
 }
 
 // Get look up a key's value.
-func (cache *Cache) Get(key string) (value Value, ok bool) {
-	if node, ok := cache.storeMap[key]; ok {
-		cache.bidirectionalLinkedList.MoveToFront(node)
+func (c *Cache) Get(key string) (value Value, ok bool) {
+	if node, ok := c.storeMap[key]; ok {
+		c.bidirectionalLinkedList.MoveToFront(node)
 		nodeValueInMap := node.Value.(*entry)
 		return nodeValueInMap.value, true
 	}
@@ -45,37 +45,37 @@ func (cache *Cache) Get(key string) (value Value, ok bool) {
 }
 
 // RemoveOldest removes the oldest item.
-func (cache *Cache) RemoveOldest() {
-	node := cache.bidirectionalLinkedList.Back()
+func (c *Cache) RemoveOldest() {
+	node := c.bidirectionalLinkedList.Back()
 	if node != nil {
-		cache.bidirectionalLinkedList.Remove(node)
+		c.bidirectionalLinkedList.Remove(node)
 		nodeValueInMap := node.Value.(*entry)
-		delete(cache.storeMap, nodeValueInMap.key)
-		cache.usedBytes -= int64(len(nodeValueInMap.key)) + int64(nodeValueInMap.value.Len())
-		if cache.onEvicted != nil {
-			cache.onEvicted(nodeValueInMap.key, nodeValueInMap.value)
+		delete(c.storeMap, nodeValueInMap.key)
+		c.usedBytes -= int64(len(nodeValueInMap.key)) + int64(nodeValueInMap.value.Len())
+		if c.onEvicted != nil {
+			c.onEvicted(nodeValueInMap.key, nodeValueInMap.value)
 		}
 	}
 }
 
 // Add update or add new item into cache
-func (cache *Cache) Add(key string, value Value) {
-	if node, ok := cache.storeMap[key]; ok {
-		cache.bidirectionalLinkedList.MoveToFront(node)
+func (c *Cache) Add(key string, value Value) {
+	if node, ok := c.storeMap[key]; ok {
+		c.bidirectionalLinkedList.MoveToFront(node)
 		nodeValueInMap := node.Value.(*entry)
-		cache.usedBytes += int64(value.Len()) - int64(nodeValueInMap.value.Len())
+		c.usedBytes += int64(value.Len()) - int64(nodeValueInMap.value.Len())
 		nodeValueInMap.value = value
 	} else {
-		node := cache.bidirectionalLinkedList.PushFront(&entry{key, value})
-		cache.storeMap[key] = node
-		cache.usedBytes += int64(len(key)) + int64(value.Len())
+		node := c.bidirectionalLinkedList.PushFront(&entry{key, value})
+		c.storeMap[key] = node
+		c.usedBytes += int64(len(key)) + int64(value.Len())
 	}
-	for cache.maxBytes != 0 && cache.maxBytes < cache.usedBytes {
-		cache.RemoveOldest()
+	for c.maxBytes != 0 && c.maxBytes < c.usedBytes {
+		c.RemoveOldest()
 	}
 }
 
 // Len get the number of items in cache
-func (cache *Cache) Len() int {
-	return cache.bidirectionalLinkedList.Len()
+func (c *Cache) Len() int {
+	return c.bidirectionalLinkedList.Len()
 }
