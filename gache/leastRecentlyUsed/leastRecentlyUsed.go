@@ -13,8 +13,8 @@ type Cache struct {
 	onEvicted               func(key string, value Value)
 }
 
-// Entry The node of bidirectional linked list
-type Entry struct {
+// entry The node of bidirectional linked list
+type entry struct {
 	key   string
 	value Value
 }
@@ -37,7 +37,7 @@ func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
 func (cache *Cache) Get(key string) (value Value, ok bool) {
 	if node, ok := cache.storeMap[key]; ok {
 		cache.bidirectionalLinkedList.MoveToFront(node)
-		nodeValueInMap := node.Value.(*Entry)
+		nodeValueInMap := node.Value.(*entry)
 		return nodeValueInMap.value, true
 	}
 
@@ -49,7 +49,7 @@ func (cache *Cache) RemoveOldest() {
 	node := cache.bidirectionalLinkedList.Back()
 	if node != nil {
 		cache.bidirectionalLinkedList.Remove(node)
-		nodeValueInMap := node.Value.(*Entry)
+		nodeValueInMap := node.Value.(*entry)
 		delete(cache.storeMap, nodeValueInMap.key)
 		cache.usedBytes -= int64(len(nodeValueInMap.key)) + int64(nodeValueInMap.value.Len())
 		if cache.onEvicted != nil {
@@ -62,11 +62,11 @@ func (cache *Cache) RemoveOldest() {
 func (cache *Cache) Add(key string, value Value) {
 	if node, ok := cache.storeMap[key]; ok {
 		cache.bidirectionalLinkedList.MoveToFront(node)
-		nodeValueInMap := node.Value.(*Entry)
+		nodeValueInMap := node.Value.(*entry)
 		cache.usedBytes += int64(value.Len()) - int64(nodeValueInMap.value.Len())
 		nodeValueInMap.value = value
 	} else {
-		node := cache.bidirectionalLinkedList.PushFront(&Entry{key, value})
+		node := cache.bidirectionalLinkedList.PushFront(&entry{key, value})
 		cache.storeMap[key] = node
 		cache.usedBytes += int64(len(key)) + int64(value.Len())
 	}
