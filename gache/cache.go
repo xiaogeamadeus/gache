@@ -3,7 +3,7 @@ package gache
 import (
 	"sync"
 
-	lru "gache/gache/leastRecentlyUsed"
+	lru "gache/leastRecentlyUsed"
 )
 
 type cache struct {
