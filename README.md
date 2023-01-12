@@ -1,5 +1,5 @@
 # Gache
-A distributed c written by golang
+A distributed cache written by golang
 
 ## Why we need cache?
 Reduced the number of queries from database by storing data in local browser.

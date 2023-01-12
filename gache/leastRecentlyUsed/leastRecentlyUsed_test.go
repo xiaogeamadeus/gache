@@ -1,4 +1,4 @@
-package leastRecentlyUsed
+package lru
 
 import (
 	"reflect"
