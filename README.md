@@ -20,7 +20,8 @@ accept key --> check if it's cached ------> return value(1)
 Use LRU(Least Recently Used) strategy to delete data.
 #### Dirty read/write about concurrent control.
 Use Mutex lock for some operation (Add, update, delete) to avoid dirty read/write.
-
+#### Cache Avalanche & Cache Breakdown
+Internal Package "SingleFlight" can handle this problem.
 ## Uses of each part
 [byteView.go](gache%2FbyteView.go): 
 A readonly data structure to show the cache value.
